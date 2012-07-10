@@ -1,0 +1,1 @@
+BAND(BCONST(true),BCONST(false))

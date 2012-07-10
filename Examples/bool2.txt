@@ -1,0 +1,1 @@
+BNOT(BAND(BOR(BCONST(true),BCONST(false)),BXOR(BCONST(true),BCONST(true))))
