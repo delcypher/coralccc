@@ -1,0 +1,96 @@
+/* path condition */
+PC  := BE | BE ';' PC
+
+/* boolean expressions */
+BE  := BC | BOP | DR | FR | IR | LR
+
+/* boolean constants */
+BC  := 'BCONST(true)' | 'BCONST(false)'
+
+/* boolean operations */
+BOP := op '(' BE ',' BE ')' where op = {BAND,BOR,BXOR}
+     | 'BNOT(' BE ')'
+
+/* double relational */
+DR :=  op '(' DE ',' DE ')' where op = {DGT,DLT,DLE,DGE,DEQ,DNE}
+
+/* float relational */
+FR :=  op '(' FE ',' FE ')' where op = {FGT,FLT,FLE,FGE,FEQ,FNE}
+
+/* int relational */
+IR :=  op '(' IE ',' IE ')' where op = {IGT,ILT,ILE,IGE,IEQ,INE}
+
+/* long relational */
+LR :=  op '(' LE ',' LE ')' where op = {LGT,LLT,LLE,LGE,LEQ,LNE}
+
+/* double expression */
+DE := DA | DC | DV | DB | DU | DCAST
+
+/* double arithmetic */
+DA := op '(' DE ',' DE ')' where op = {ADD,SUB,MUL,DIV,MOD}
+
+/* double constant */
+DC := 'DCONST(' v ')' where v is a double literal
+
+/* double variable */
+DV := 'DVAR(' id ')' where id is a string identifier, like "ID_1","ID_2","ID_300"...
+
+/* double binary function */
+DB := op '(' DE ',' DE ')' where op = {ATAN2_, POW_}
+
+obs. Mathematical functions with semantics as defined in
+http://download-llnw.oracle.com/javase/6/docs/api/java/lang/Math.html
+
+/* double unary function */ 
+DU := op '(' DE ')' where op = {SIN_, COS_, TAN_, ASIN_, ACOS_, ATAN_, EXP_,
+LOG_, LOG10_, ROUND_, SQRT_}
+
+/* float,int, and long expressions */
+FE := FA | FC | FV 
+IE := IA | IC | IV | ICAST
+LE := LA | LC | FV 
+
+/* cast to double */
+DCAST := 'ASDOUBLE(' FE ')'
+	| 'ASDOUBLE(' IE ')'
+	| 'ASDOUBLE(' LE ')'
+
+
+/* cast to integer */
+ICAST := 'ASINT(' DE ')'
+	| 'ASINT(' FE ')'
+	| 'ASINT(' LE ')'
+
+obs. The definitions of these categories are similar to the category
+with corresponding name for doubles.  You replace first 'D' charaters
+in tokens with the name of the type.  For example, an int literal is
+identified with IVAR.  For example, IVAR(ID_1).
+
+/* float arithmetic */
+FA := op '(' FE',' FE')' where op = {ADD,SUB,MUL,DIV,MOD}
+
+/* float constant */
+FC := 'FCONST(' v ')' where v is a float literal
+
+/* float variable */
+FV := 'FVAR(' id ')' where id is a string identifier, like "ID_1","ID_2","ID_300"...
+
+
+/* integer arithmetic */
+IA := op '(' IE',' IE')' where op = {ADD,SUB,MUL,DIV,MOD}
+
+/* integer constant */
+IC := 'ICONST(' v ')' where v is a integer literal
+
+/* integer variable */
+IV := 'IVAR(' id ')' where id is a string identifier, like "ID_1","ID_2","ID_300"...
+
+
+/* long arithmetic */
+LA := op '(' LE',' LE')' where op = {ADD,SUB,MUL,DIV,MOD}
+
+/* long constant */
+LC := 'LCONST(' v ')' where v is a long literal
+
+/* long variable */
+LV := 'LVAR(' id ')' where id is a string identifier, like "ID_1","ID_2","ID_300"...
