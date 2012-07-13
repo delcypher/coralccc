@@ -1,1 +1,1 @@
-BAND(BCONST(true),BCONST(false))
+BAND(BCONST(true),BCONST(false));BXOR(BCONST(true),BNOT(BCONST(false)))

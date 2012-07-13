@@ -5,6 +5,21 @@
 #include "parser.hpp"
 using namespace std;
 
+template <>
+void Variable<double>::dumpDeclarations(std::ostream& o)
+{
+	std::map<std::string,std::string>::iterator it;
+
+	//loop over elements and output a C defintion and declaration
+	for(it=collection.begin(); it != collection.end(); it++)
+	{
+		o << "double " << it->first << "=" << it->second << ";" << std::endl;
+	}
+}
+
+template <>
+map<string,string> Variable<double>::collection = map<string,string>();
+
 BinaryInfixOperator::BinaryInfixOperator(ASTNode* lhs, int op, ASTNode* rhs) : BinaryOperator(lhs,rhs)
 {
 	//Set C Symbol
@@ -91,5 +106,32 @@ UnaryOperator::UnaryOperator(ASTNode* opa, int type) : operand(opa)
 		default:
 			cerr << "UnaryOperator : Opcode " << type << " not supported";
 
+	}
+}
+
+BinaryPrefixOperator::BinaryPrefixOperator(ASTNode* lhs, int op, ASTNode* rhs) : BinaryOperator(lhs,rhs)
+{
+	switch(op)
+	{
+		case TATAN2: csymbol="atan2"; break;
+		case TPOW: csymbol="pow"; break;
+
+		default:
+			cerr << "BinaryPrefixOperator : Opcode " << op << " not supported!";
+
+	}
+}
+
+CastOperator::CastOperator(ASTNode* opa, int type) : UnaryOperator(opa)
+{
+	//Override what the parent constructor did and change the csymbol
+
+	switch(type)
+	{
+		case TASDOUBLE: csymbol="double";break;
+		case TASINT: csymbol="int"; break;
+
+		default:
+			cerr << "CastOperator : Opcode " << type << " not supported!";
 	}
 }

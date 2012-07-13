@@ -2,7 +2,7 @@
 #define ASTNODE_H 1
 #include <string>
 #include <ostream>
-#include <vector>
+#include <map>
 
 class ASTNode
 {
@@ -28,6 +28,7 @@ class UnaryOperator : public ASTNode
 		UnaryOperator(ASTNode* opa, int type);
 		virtual void print(std::ostream& o) { o << csymbol << "("; operand->print(o); o << ")";}
 	protected:
+		UnaryOperator(ASTNode* opa) : operand(opa) { } //For sub classes
 		ASTNode* operand;
 };
 
@@ -99,9 +100,24 @@ template <class T>
 class Variable : public ASTNode
 {
 	public:
-		static std::vector<std::string> collection;
-		Variable(std::string& s) { csymbol = s; collection.push_back(csymbol); }
+		static std::map<std::string,std::string> collection;
+		static void dumpDeclarations(std::ostream& o);
+		Variable(std::string& s);
 		virtual void print(std::ostream& o) { o << csymbol;}
 };
+
+/* Because we're using templates definition of classes methods must be here */
+template <class T>
+Variable<T>::Variable(std::string& s)
+{
+	csymbol=s;
+
+	//check if symbol already stored
+	if(collection.count(s) == 0)
+	{
+		//Not in collection so add it with an empty string value
+		collection.insert(std::pair<std::string,std::string>(s,""));
+	}
+}
 
 #endif

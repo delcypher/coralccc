@@ -44,7 +44,10 @@
  */
 %type <node>  pathcondition
 %type <node> boolexpr boolexprs boolconst booloperation
-%type <token> booltruthvalue boolbinoperator
+%type <node> casttodoubleexpression
+%type <node> doublerelational doubleexpression doublearithmetic doubleconst doublevariable doublebinaryfunction doubleunaryfunction doublecast
+%type <token> doublecomparison doublearithmeticop doublebinaryoperator doubleunaryoperator
+%type <token> booltruthvalue boolbinaryoperator
 
 %start pathcondition
 
@@ -55,6 +58,7 @@ pathcondition : boolexprs { root = $1; }
 
 boolexpr : boolconst { $$ = $1; }
 	 | booloperation {$$ = $1;}
+	 | doublerelational { $$ = $1;}
 	 ;
 
 boolexprs : boolexpr { $$ = $1;}
@@ -66,8 +70,41 @@ boolconst : TBCONST TLBRACKET booltruthvalue TRBRACKET { $$ = new ConstantBool($
 
 booltruthvalue : TTRUE | TFALSE ;
 
-booloperation : boolbinoperator TLBRACKET boolexpr TCOMMA boolexpr TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); }
+booloperation : boolbinaryoperator TLBRACKET boolexpr TCOMMA boolexpr TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); }
 		| TNOT TLBRACKET boolexpr TRBRACKET {$$ = new UnaryOperator($3,$1);}
 		;
 
-boolbinoperator : TAND | TOR | TXOR ;
+boolbinaryoperator : TAND | TOR | TXOR ;
+
+doublerelational : doublecomparison TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);}
+;
+
+doublecomparison : TDGT | TDLT | TDLE | TDGE | TDEQ | TDNE ; 
+
+doubleexpression : doublearithmetic | 
+		   doubleconst | 
+		   doublevariable | 
+		   doublebinaryfunction | 
+		   doubleunaryfunction | 
+		   doublecast { $$ = $1;}
+		   ;
+
+doublearithmetic : doublearithmeticop TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);};
+
+doublearithmeticop : TADD | TSUB | TMUL | TDIV | TMOD ;
+
+doubleconst : TDCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantDouble(*$3); delete $3;} ;
+
+doublevariable : TDVAR TLBRACKET TID TRBRACKET { $$ = new Variable<double>(*$3); delete $3;}  ;
+
+doublebinaryfunction : doublebinaryoperator TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
+
+doublebinaryoperator : TATAN2 | TPOW ;
+
+doubleunaryfunction : doubleunaryoperator TLBRACKET doubleexpression TRBRACKET { $$ = new UnaryOperator($3,$1);} ;
+
+doubleunaryoperator : TSIN | TCOS | TTAN | TASIN | TACOS | TATAN | TEXP | TLOG | TLOG10 | TROUND | TSQRT ;
+
+doublecast : TASDOUBLE TLBRACKET casttodoubleexpression TRBRACKET { $$ = new CastOperator($3,$1);}
+
+casttodoubleexpression : doubleexpression /* needs correcting! */ ;
