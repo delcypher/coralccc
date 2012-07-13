@@ -129,7 +129,7 @@ float_arithmetic : arithmetic_operator TLBRACKET float_expression TCOMMA float_e
 
 float_const : TFCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantFloat(*$3); delete $3;} ;
 
-float_variable : TFVAR TLBRACKET TDECLIT TRBRACKET { $$ = new Variable(*$3,$1); delete $3; } ;
+float_variable : TFVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3; } ;
 
 integer_relational : integer_comparison TLBRACKET integer_expression TCOMMA integer_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
 
