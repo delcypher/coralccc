@@ -83,5 +83,5 @@ ID_[0-9]+		SAVE_TOKEN; return TID; /* Variable identifier */
 ","			return TCOMMA;
 "("			return TOKEN(TLBRACKET);
 ")"			return TOKEN(TRBRACKET);
-.			fprintf(stderr,"Unknown token:%s",yytext);yyterminate();
+.			fprintf(stderr,"Unknown token:%s\n",yytext);yyterminate();
 %%
