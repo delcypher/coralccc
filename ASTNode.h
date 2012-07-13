@@ -110,26 +110,8 @@ class Variable : public ASTNode
 		static std::map<std::string,Container> collection;
 		static void dumpDeclarations(std::ostream& o);
 		virtual void print(std::ostream& o) { o << csymbol;}
+		Variable(std::string& s, int dataType);
 
-	protected:
-		Variable(std::string& s)  { csymbol=s; }
 };
 
-class VariableDouble : public Variable
-{
-	public:
-		VariableDouble(std::string& s);
-};
-
-class VariableFloat : public Variable
-{
-	public:
-		VariableFloat(std::string& s);
-};
-
-class VariableInt : public Variable
-{
-	public:
-		VariableInt(std::string& s);
-};
 #endif

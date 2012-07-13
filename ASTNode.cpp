@@ -19,44 +19,34 @@ void Variable::dumpDeclarations(std::ostream& o)
 	}
 }
 
-VariableDouble::VariableDouble(std::string& s) : Variable(s)
+Variable::Variable(std::string& s, int dataType)
 {
+	csymbol=s;
+
 	//check if symbol is not stored
 	if(collection.count(s) == 0)
 	{
 		string empty; //We don't know its value yet (that's for coral to figure out)
-		Container temp(empty,"double");
+		Container temp(empty,"");
+
+		//Set the correct data type
+		switch(dataType)
+		{
+			case TDVAR: temp.typeName="double"; break;
+			case TFVAR: temp.typeName="float"; break;
+			case TIVAR: temp.typeName="int"; break;
+			case TLVAR: temp.typeName="long"; break;
+
+			default:
+				cerr << "Variable : Data type " << dataType << " not supported!" << endl;
+				return;
+		}
 
 		//Not in collection so add it with an empty string value
 		collection.insert(std::pair<std::string,Variable::Container>(s,temp));
 	}
 }
 
-VariableFloat::VariableFloat(std::string& s) : Variable(s)
-{
-	//check if symbol is not stored
-	if(collection.count(s) == 0)
-	{
-		string empty; //We don't know its value yet (that's for coral to figure out)
-		Container temp(empty,"float");
-
-		//Not in collection so add it with an empty string value
-		collection.insert(std::pair<std::string,Variable::Container>(s,temp));
-	}
-}
-
-VariableInt::VariableInt(std::string& s) : Variable(s)
-{
-	//check if symbol is not stored
-	if(collection.count(s) == 0)
-	{
-		string empty; //We don't know its value yet (that's for coral to figure out)
-		Container temp(empty,"int");
-
-		//Not in collection so add it with an empty string value
-		collection.insert(std::pair<std::string,Variable::Container>(s,temp));
-	}
-}
 BinaryInfixOperator::BinaryInfixOperator(ASTNode* lhs, int op, ASTNode* rhs) : BinaryOperator(lhs,rhs)
 {
 	//Set C Symbol

@@ -101,7 +101,7 @@ arithmetic_operator : TADD | TSUB | TMUL | TDIV | TMOD ;
 
 double_const : TDCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantDouble(*$3); delete $3;} ;
 
-double_variable : TDVAR TLBRACKET TID TRBRACKET { $$ = new VariableDouble(*$3); delete $3;}  ;
+double_variable : TDVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3;}  ;
 
 double_binary_function : doublebinaryoperator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
 
@@ -129,7 +129,7 @@ float_arithmetic : arithmetic_operator TLBRACKET float_expression TCOMMA float_e
 
 float_const : TFCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantFloat(*$3); delete $3;} ;
 
-float_variable : TFVAR TLBRACKET TDECLIT TRBRACKET { $$ = new VariableFloat(*$3); delete $3; } ;
+float_variable : TFVAR TLBRACKET TDECLIT TRBRACKET { $$ = new Variable(*$3,$1); delete $3; } ;
 
 integer_relational : integer_comparison TLBRACKET integer_expression TCOMMA integer_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
 
@@ -145,7 +145,7 @@ integer_arithmetic : arithmetic_operator TLBRACKET integer_expression TCOMMA int
 
 integer_const : TICONST TLBRACKET TINTLIT TRBRACKET  { $$ = new ConstantInt(*$3); delete $3; };
 
-integer_variable : TIVAR TLBRACKET TID TRBRACKET  { $$ = new VariableInt(*$3); delete $3; };
+integer_variable : TIVAR TLBRACKET TID TRBRACKET  { $$ = new Variable(*$3,$1); delete $3; };
 
 integer_cast :  TASINT TLBRACKET castable_to_int TRBRACKET  { $$ = new CastOperator($3,$1); };
 
