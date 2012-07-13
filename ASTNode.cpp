@@ -12,10 +12,32 @@ void Variable::dumpDeclarations(std::ostream& o)
 {
 	std::map<std::string,Container>::iterator it;
 
+	ASTNode* printer=0;
+
 	//loop over elements and output a C defintion and declaration
 	for(it=collection.begin(); it != collection.end(); it++)
 	{
-		o << (it->second).typeName << " " << it->first << "=" << (it->second).varValue << ";" << std::endl;
+		string type=(it->second).typeName;
+		o << type << " " << it->first << "="; 
+		
+		//We should take advantage of The Constant Classes so we output the correct format
+		if(type == "double")
+			printer= new ConstantDouble((it->second).varValue);
+		else if(type == "float")
+			printer= new ConstantFloat((it->second).varValue);
+		else if(type == "int") 
+			printer= new ConstantInt((it->second).varValue);
+		else if(type == "long") 
+			printer= new ConstantLong((it->second).varValue);
+		else
+			cerr << "Variable::dumpDeclarations : Data type " << type << " not supported!" << endl;
+
+
+		//print out the value
+		printer->print(o);
+		o << ";" ;
+
+		delete printer; //free up memory for next loop.
 	}
 }
 
