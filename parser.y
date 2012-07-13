@@ -182,7 +182,7 @@ long_expression : long_arithmetic
 
 long_arithmetic : arithmetic_operator TLBRACKET long_expression TCOMMA long_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); };
 
-long_const : TLCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantLong(*$3); delete $3; } ;
+long_const : TLCONST TLBRACKET TINTLIT TRBRACKET { $$ = new ConstantLong(*$3); delete $3; } ;
 
 long_variable : TLVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3; };
 

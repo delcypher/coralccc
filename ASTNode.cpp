@@ -35,7 +35,7 @@ void Variable::dumpDeclarations(std::ostream& o)
 
 		//print out the value
 		printer->print(o);
-		o << ";" ;
+		o << ";"  << endl;
 
 		delete printer; //free up memory for next loop.
 	}
