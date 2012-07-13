@@ -12,7 +12,8 @@ int main(int argc, char **argv)
 
 
 	/* Now we will start to print out the C code */
-	cout << "#include <math.h>" << endl;
+	cout << "#include <math.h>" << endl <<
+	"main()" << "{" << endl;
 
 	/* print out double declarations and definitions */
 	Variable::dumpDeclarations(std::cout);
@@ -20,6 +21,8 @@ int main(int argc, char **argv)
 	cout << "if(";
 	root->print(std::cout);
 	cout << ")" << endl << "return 0; " << endl << "else" << endl << "return -1;" << endl;
+
+	cout << "}" << endl;
 
 	return 0;
 }
