@@ -95,7 +95,7 @@ doublearithmeticop : TADD | TSUB | TMUL | TDIV | TMOD ;
 
 doubleconst : TDCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantDouble(*$3); delete $3;} ;
 
-doublevariable : TDVAR TLBRACKET TID TRBRACKET { $$ = new Variable<double>(*$3); delete $3;}  ;
+doublevariable : TDVAR TLBRACKET TID TRBRACKET { $$ = new VariableDouble(*$3); delete $3;}  ;
 
 doublebinaryfunction : doublebinaryoperator TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
 

@@ -5,20 +5,32 @@
 #include "parser.hpp"
 using namespace std;
 
-template <>
-void Variable<double>::dumpDeclarations(std::ostream& o)
+
+map<string,Variable::Container> Variable::collection = map<string,Variable::Container>();
+
+void Variable::dumpDeclarations(std::ostream& o)
 {
-	std::map<std::string,std::string>::iterator it;
+	std::map<std::string,Container>::iterator it;
 
 	//loop over elements and output a C defintion and declaration
 	for(it=collection.begin(); it != collection.end(); it++)
 	{
-		o << "double " << it->first << "=" << it->second << ";" << std::endl;
+		o << (it->second).typeName << " " << it->first << "=" << (it->second).varValue << ";" << std::endl;
 	}
 }
 
-template <>
-map<string,string> Variable<double>::collection = map<string,string>();
+VariableDouble::VariableDouble(std::string& s) : Variable(s)
+{
+	//check if symbol is not stored
+	if(collection.count(s) == 0)
+	{
+		string empty; //We don't know its value yet (that's for coral to figure out)
+		Container temp(empty,"double");
+
+		//Not in collection so add it with an empty string value
+		collection.insert(std::pair<std::string,Variable::Container>(s,temp));
+	}
+}
 
 BinaryInfixOperator::BinaryInfixOperator(ASTNode* lhs, int op, ASTNode* rhs) : BinaryOperator(lhs,rhs)
 {

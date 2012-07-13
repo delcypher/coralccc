@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	cout << "#include <math.h>" << endl;
 
 	/* print out double declarations and definitions */
-	Variable<double>::dumpDeclarations(std::cout);
+	Variable::dumpDeclarations(std::cout);
 
 	cout << "if(";
 	root->print(std::cout);

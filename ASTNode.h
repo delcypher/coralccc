@@ -96,28 +96,30 @@ class ConstantBool : public Constant
 };
 
 
-template <class T>
+
 class Variable : public ASTNode
 {
 	public:
-		static std::map<std::string,std::string> collection;
+		struct Container
+		{
+			std::string varValue; //e.g.  0.255
+			std::string typeName; //e.g. double
+
+			Container(std::string& _varValue, const char* _typeName) : varValue(_varValue), typeName(_typeName) { }
+		};
+		static std::map<std::string,Container> collection;
 		static void dumpDeclarations(std::ostream& o);
-		Variable(std::string& s);
 		virtual void print(std::ostream& o) { o << csymbol;}
+
+	protected:
+		Variable(std::string& s)  { csymbol=s; }
 };
 
-/* Because we're using templates definition of classes methods must be here */
-template <class T>
-Variable<T>::Variable(std::string& s)
+class VariableDouble : public Variable
 {
-	csymbol=s;
+	public:
+		VariableDouble(std::string& s);
+};
 
-	//check if symbol already stored
-	if(collection.count(s) == 0)
-	{
-		//Not in collection so add it with an empty string value
-		collection.insert(std::pair<std::string,std::string>(s,""));
-	}
-}
 
 #endif
