@@ -6,6 +6,8 @@ using namespace std;
 extern int yyparse();
 extern ASTNode* root;
 
+const char indent[] = "    ";
+
 int main(int argc, char **argv)
 {
 	yyparse();
@@ -18,9 +20,14 @@ int main(int argc, char **argv)
 	/* print out double declarations and definitions */
 	Variable::dumpDeclarations(std::cout);
 
-	cout << "if(";
+	cout << indent << "if(";
+
 	root->print(std::cout);
-	cout << ")" << endl << "return 0; " << endl << "else" << endl << "return -1;" << endl;
+
+	cout << ")" << endl << 
+	indent << indent << "return 0; " << endl 
+	<< indent << "else" << endl 
+	<< indent << indent << "return -1;" << endl;
 
 	cout << "}" << endl;
 
