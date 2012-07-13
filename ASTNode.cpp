@@ -32,6 +32,19 @@ VariableDouble::VariableDouble(std::string& s) : Variable(s)
 	}
 }
 
+VariableFloat::VariableFloat(std::string& s) : Variable(s)
+{
+	//check if symbol is not stored
+	if(collection.count(s) == 0)
+	{
+		string empty; //We don't know its value yet (that's for coral to figure out)
+		Container temp(empty,"float");
+
+		//Not in collection so add it with an empty string value
+		collection.insert(std::pair<std::string,Variable::Container>(s,temp));
+	}
+}
+
 BinaryInfixOperator::BinaryInfixOperator(ASTNode* lhs, int op, ASTNode* rhs) : BinaryOperator(lhs,rhs)
 {
 	//Set C Symbol

@@ -121,5 +121,10 @@ class VariableDouble : public Variable
 		VariableDouble(std::string& s);
 };
 
+class VariableFloat : public Variable
+{
+	public:
+		VariableFloat(std::string& s);
+};
 
 #endif

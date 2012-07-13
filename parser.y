@@ -42,69 +42,89 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node>  pathcondition
-%type <node> boolexpr boolexprs boolconst booloperation
-%type <node> casttodoubleexpression
-%type <node> doublerelational doubleexpression doublearithmetic doubleconst doublevariable doublebinaryfunction doubleunaryfunction doublecast
-%type <token> doublecomparison doublearithmeticop doublebinaryoperator doubleunaryoperator
-%type <token> booltruthvalue boolbinaryoperator
+%type <node>  path_condition
+%type <node> bool_expression bool_expressions bool_const bool_operation
+%type <node> castable_to_double
+%type <node> double_relational double_expression doublearithmetic double_const double_variable double_binary_function double_unary_function double_cast
+%type <node> float_relational float_expression float_arithmetic float_const float_variable
+%type <token> double_comparison arithmetic_operator doublebinaryoperator doubleunaryoperator
+%type <token> float_comparison
+%type <token> bool_truth_value bool_binary_operator
 
-%start pathcondition
+%start path_condition
 
 %%
 
-pathcondition : boolexprs { root = $1; }
+path_condition : bool_expressions { root = $1; }
 		;
 
-boolexpr : boolconst { $$ = $1; }
-	 | booloperation {$$ = $1;}
-	 | doublerelational { $$ = $1;}
+bool_expression : bool_const 
+	 | bool_operation 
+	 | double_relational 
+	 | float_relational { $$ = $1; }
 	 ;
 
-boolexprs : boolexpr { $$ = $1;}
-	  | boolexprs TSEMICOL boolexpr { $$ = new BinaryInfixOperator($1, TAND, $3);}
+bool_expressions : bool_expression { $$ = $1;}
+	  | bool_expressions TSEMICOL bool_expression { $$ = new BinaryInfixOperator($1, TAND, $3);}
 	  ;
 
-boolconst : TBCONST TLBRACKET booltruthvalue TRBRACKET { $$ = new ConstantBool($3);}
+bool_const : TBCONST TLBRACKET bool_truth_value TRBRACKET { $$ = new ConstantBool($3);}
 	  ;
 
-booltruthvalue : TTRUE | TFALSE ;
+bool_truth_value : TTRUE | TFALSE ;
 
-booloperation : boolbinaryoperator TLBRACKET boolexpr TCOMMA boolexpr TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); }
-		| TNOT TLBRACKET boolexpr TRBRACKET {$$ = new UnaryOperator($3,$1);}
+bool_operation : bool_binary_operator TLBRACKET bool_expression TCOMMA bool_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); }
+		| TNOT TLBRACKET bool_expression TRBRACKET {$$ = new UnaryOperator($3,$1);}
 		;
 
-boolbinaryoperator : TAND | TOR | TXOR ;
+bool_binary_operator : TAND | TOR | TXOR ;
 
-doublerelational : doublecomparison TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);}
+double_relational : double_comparison TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);}
 ;
 
-doublecomparison : TDGT | TDLT | TDLE | TDGE | TDEQ | TDNE ; 
+double_comparison : TDGT | TDLT | TDLE | TDGE | TDEQ | TDNE ; 
 
-doubleexpression : doublearithmetic | 
-		   doubleconst | 
-		   doublevariable | 
-		   doublebinaryfunction | 
-		   doubleunaryfunction | 
-		   doublecast { $$ = $1;}
+double_expression : doublearithmetic | 
+		   double_const | 
+		   double_variable | 
+		   double_binary_function | 
+		   double_unary_function | 
+		   double_cast { $$ = $1;}
 		   ;
 
-doublearithmetic : doublearithmeticop TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);};
+doublearithmetic : arithmetic_operator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);};
 
-doublearithmeticop : TADD | TSUB | TMUL | TDIV | TMOD ;
+arithmetic_operator : TADD | TSUB | TMUL | TDIV | TMOD ;
 
-doubleconst : TDCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantDouble(*$3); delete $3;} ;
+double_const : TDCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantDouble(*$3); delete $3;} ;
 
-doublevariable : TDVAR TLBRACKET TID TRBRACKET { $$ = new VariableDouble(*$3); delete $3;}  ;
+double_variable : TDVAR TLBRACKET TID TRBRACKET { $$ = new VariableDouble(*$3); delete $3;}  ;
 
-doublebinaryfunction : doublebinaryoperator TLBRACKET doubleexpression TCOMMA doubleexpression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
+double_binary_function : doublebinaryoperator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
 
 doublebinaryoperator : TATAN2 | TPOW ;
 
-doubleunaryfunction : doubleunaryoperator TLBRACKET doubleexpression TRBRACKET { $$ = new UnaryOperator($3,$1);} ;
+double_unary_function : doubleunaryoperator TLBRACKET double_expression TRBRACKET { $$ = new UnaryOperator($3,$1);} ;
 
 doubleunaryoperator : TSIN | TCOS | TTAN | TASIN | TACOS | TATAN | TEXP | TLOG | TLOG10 | TROUND | TSQRT ;
 
-doublecast : TASDOUBLE TLBRACKET casttodoubleexpression TRBRACKET { $$ = new CastOperator($3,$1);}
+double_cast : TASDOUBLE TLBRACKET castable_to_double TRBRACKET { $$ = new CastOperator($3,$1);}
 
-casttodoubleexpression : doubleexpression /* needs correcting! */ ;
+castable_to_double : float_expression /* needs correcting! */ ;
+
+
+float_relational : float_comparison TLBRACKET float_expression TCOMMA float_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
+
+float_comparison : TFGT | TFLT | TFLE | TFGE | TFEQ | TFNE ;
+
+float_expression : float_arithmetic
+		| float_const
+		| float_variable { $$ = $1;} 
+		;
+
+float_arithmetic : arithmetic_operator TLBRACKET float_expression TCOMMA float_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); }
+
+float_const : TFCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantFloat(*$3); delete $3;}
+
+float_variable : TFVAR TLBRACKET TDECLIT TRBRACKET { $$ = new VariableFloat(*$3); delete $3; }
+
