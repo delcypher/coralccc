@@ -12,11 +12,24 @@
 #define SAVE_TOKEN yylval.string = new std::string(yytext, yyleng)
 #define TOKEN(t) (yylval.token = t)
 extern "C" int yywrap() { }
+
+/* handle locations */
+int yycolumn = 1;
+
+/* Executed for every token. Used for error reporting. It is taken from
+http://oreilly.com/linux/excerpts/9780596155971/error-reporting-recovery.html
+*/
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
+        yycolumn += yyleng;
 %}
 
+/* Enable the use of the non POSIX line number feature for error reporting! */
+%option yylineno
 %%
 
-[ \n\t] ; /* Ignore whitespace */
+[ \t] ; /* Ignore whitespace */
+[\n]			{ yycolumn=1; /* Reset the column counter */ }
 BCONST			return TOKEN(TBCONST); /* Binary constant operator */
 true			return TOKEN(TTRUE); /* Truth literal token */
 false			return TOKEN(TFALSE); /* Truth literal token */

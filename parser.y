@@ -5,7 +5,7 @@
 	ASTNode* root; /* the top level root node of our final AST */
 
 	extern int yylex();
-	void yyerror(const char *s) { std::printf("Error: %s\n", s);std::exit(1); }
+	void yyerror(const char* s);
 %}
 
 /* Represents the many different ways we can access our data */
@@ -56,6 +56,8 @@
 %type <token> bool_truth_value bool_binary_operator
 
 %start path_condition
+
+%locations
 
 %%
 
@@ -167,3 +169,7 @@ long_arithmetic : arithmetic_operator TLBRACKET long_expression TCOMMA long_expr
 long_const : TLCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantLong(*$3); delete $3; } ;
 
 long_variable : TLVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3; };
+
+%%
+
+void yyerror(const char *s) { std::printf("Error: %s. Between l:%d,c:%d and l:%d,c:%d\n", s,yylloc.first_line, yylloc.first_column, yylloc.last_line, yylloc.last_column);  std::exit(1); }
