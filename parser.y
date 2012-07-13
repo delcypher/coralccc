@@ -44,11 +44,13 @@
  */
 %type <node>  path_condition
 %type <node> bool_expression bool_expressions bool_const bool_operation
-%type <node> castable_to_double
+%type <node> castable_to_double castable_to_int
 %type <node> double_relational double_expression doublearithmetic double_const double_variable double_binary_function double_unary_function double_cast
 %type <node> float_relational float_expression float_arithmetic float_const float_variable
+%type <node> integer_relational integer_expression integer_arithmetic integer_const integer_variable integer_cast
 %type <token> double_comparison arithmetic_operator doublebinaryoperator doubleunaryoperator
 %type <token> float_comparison
+%type <token> integer_comparison 
 %type <token> bool_truth_value bool_binary_operator
 
 %start path_condition
@@ -61,7 +63,8 @@ path_condition : bool_expressions { root = $1; }
 bool_expression : bool_const 
 	 | bool_operation 
 	 | double_relational 
-	 | float_relational { $$ = $1; }
+	 | float_relational 
+	 | integer_relational { $$ = $1; }
 	 ;
 
 bool_expressions : bool_expression { $$ = $1;}
@@ -110,7 +113,7 @@ doubleunaryoperator : TSIN | TCOS | TTAN | TASIN | TACOS | TATAN | TEXP | TLOG |
 
 double_cast : TASDOUBLE TLBRACKET castable_to_double TRBRACKET { $$ = new CastOperator($3,$1);}
 
-castable_to_double : float_expression /* needs correcting! */ ;
+castable_to_double : float_expression | integer_expression /* needs correcting! */ ;
 
 
 float_relational : float_comparison TLBRACKET float_expression TCOMMA float_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
@@ -122,9 +125,29 @@ float_expression : float_arithmetic
 		| float_variable { $$ = $1;} 
 		;
 
-float_arithmetic : arithmetic_operator TLBRACKET float_expression TCOMMA float_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); }
+float_arithmetic : arithmetic_operator TLBRACKET float_expression TCOMMA float_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
 
-float_const : TFCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantFloat(*$3); delete $3;}
+float_const : TFCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantFloat(*$3); delete $3;} ;
 
-float_variable : TFVAR TLBRACKET TDECLIT TRBRACKET { $$ = new VariableFloat(*$3); delete $3; }
+float_variable : TFVAR TLBRACKET TDECLIT TRBRACKET { $$ = new VariableFloat(*$3); delete $3; } ;
+
+integer_relational : integer_comparison TLBRACKET integer_expression TCOMMA integer_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
+
+integer_comparison : TIGT | TILT | TILE | TIGE | TIEQ | TINE ;
+
+integer_expression : integer_arithmetic
+		| integer_const
+		| integer_variable
+		| integer_cast { $$ = $1;}
+		;
+
+integer_arithmetic : arithmetic_operator TLBRACKET integer_expression TCOMMA integer_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
+
+integer_const : TICONST TLBRACKET TINTLIT TRBRACKET  { $$ = new ConstantInt(*$3); delete $3; };
+
+integer_variable : TIVAR TLBRACKET TID TRBRACKET  { $$ = new VariableInt(*$3); delete $3; };
+
+integer_cast :  TASINT TLBRACKET castable_to_int TRBRACKET  { $$ = new CastOperator($3,$1); };
+
+castable_to_int : double_expression | float_expression /* incomplete */ ; 
 
