@@ -109,6 +109,7 @@ class Variable : public ASTNode
 		};
 		static std::map<std::string,Container> collection;
 		static void dumpDeclarations(std::ostream& o);
+		static void setVariableValue(std::string& id, std::string& value);
 		virtual void print(std::ostream& o) { o << csymbol;}
 		Variable(std::string& s, int dataType);
 

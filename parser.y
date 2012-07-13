@@ -19,7 +19,8 @@
    match our tokens.l lex file. We also define the node type
    they represent.
  */
-%token <string> TID TDECLIT TINTLIT
+%token <string> TID TDECLIT TINTLIT 
+%token <token> TSOLVAR
 %token <token> TBCONST TTRUE TFALSE TAND TOR TXOR TNOT
 %token <token> TDGT TFGT TIGT TLGT
 %token <token> TDLT TFLT TILT TLLT
@@ -33,6 +34,7 @@
 %token <token> TSIN TCOS TTAN TASIN TACOS TATAN TEXP TLOG TLOG10 TROUND TSQRT
 %token <token> TDCONST TDVAR TFCONST TFVAR TICONST TIVAR TLCONST TLVAR
 %token <token> TLBRACKET TRBRACKET TSEMICOL TCOMMA 
+%token <token> TLBRACE TRBRACE TSOLEQ
 
 
 
@@ -42,7 +44,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node>  path_condition
+%type <node>  path_condition syntax 
 %type <node> bool_expression bool_expressions bool_const bool_operation
 %type <node> castable_to_double castable_to_int
 %type <node> double_relational double_expression doublearithmetic double_const double_variable double_binary_function double_unary_function double_cast
@@ -55,14 +57,28 @@
 %type <token> long_comparison
 %type <token> bool_truth_value bool_binary_operator
 
-%start path_condition
+/* These are dummys. We don't care about the type */
+%type <node> solution_group solutions solution
+%type <string> solution_value
+
+%start syntax
 
 %locations
 
 %%
 
+syntax : path_condition | solution_group ;
+
 path_condition : bool_expressions { root = $1; }
 		;
+
+solution_group : TLBRACE solutions TRBRACE { $$ = $2;}
+
+solutions : solutions TCOMMA | solution ;
+
+solution : TSOLVAR TINTLIT TSOLEQ solution_value { Variable::setVariableValue(*$2,*$4); }
+
+solution_value : TDECLIT | TINTLIT ;
 
 bool_expression : bool_const 
 	 | bool_operation 

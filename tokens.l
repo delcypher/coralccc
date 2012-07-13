@@ -26,6 +26,9 @@ http://oreilly.com/linux/excerpts/9780596155971/error-reporting-recovery.html
 
 /* Enable the use of the non POSIX line number feature for error reporting! */
 %option yylineno
+
+/* Solution parsing mode for parsing solutions */
+%x solution
 %%
 
 [ \t] ; /* Ignore whitespace */
@@ -91,10 +94,16 @@ LCONST			return TOKEN(TLCONST);
 LVAR			return TOKEN(TLVAR);
 ";"			return TOKEN(TSEMICOL);
 ID_[0-9]+		SAVE_TOKEN; return TID; /* Variable identifier */
-[0-9]+			SAVE_TOKEN; return TINTLIT; /* Integer literal */
-[0-9]+(\.[0-9]+)?	SAVE_TOKEN; return TDECLIT; /* Literal decimal number token */
-","			return TCOMMA;
+<*>[0-9]+			SAVE_TOKEN; return TINTLIT; /* Integer literal */
+<*>[0-9]+(\.[0-9]+)?	SAVE_TOKEN; return TDECLIT; /* Literal decimal number token */
+<*>","			return TCOMMA; /* Available for all start conditions */
 "("			return TOKEN(TLBRACKET);
 ")"			return TOKEN(TRBRACKET);
+
+"{"			{ BEGIN(solution); return TOKEN(TLBRACE); }
+<solution>"}"		{ BEGIN(INITIAL); return TOKEN(TRBRACE); }
+<solution>\$V			return TOKEN(TSOLVAR);
+<solution>"="			return TOKEN(TSOLEQ);
+
 .			fprintf(stderr,"Unknown token:%s\n",yytext);yyterminate();
 %%

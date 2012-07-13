@@ -47,6 +47,28 @@ Variable::Variable(std::string& s, int dataType)
 	}
 }
 
+
+void Variable::setVariableValue(std::string& id, std::string& value)
+{
+	//check variable is present first
+	string name="ID_";
+	name+=id;
+
+	//check variable is in map
+	if(collection.count(name) == 0)
+	{
+		cerr << "Variable ID_" << id << " does not appear to be stored!" << endl;
+		return;
+	}
+
+	//Pull current value out of map
+	map<string,Variable::Container>::iterator it=collection.find(name);
+
+	//Set the numeric value
+	cerr << "Requesting set ID_" << id << " to value " << value;
+	(it->second).varValue = value;
+}
+
 BinaryInfixOperator::BinaryInfixOperator(ASTNode* lhs, int op, ASTNode* rhs) : BinaryOperator(lhs,rhs)
 {
 	//Set C Symbol
