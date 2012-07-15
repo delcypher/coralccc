@@ -1,0 +1,112 @@
+#!/bin/bash
+
+#Options
+CORAL_JAR="coral.jar"
+CORAL_OPTS="--pcCanonicalization=false " # The space at the end is important!
+TMP_FILE="/tmp/coralw-$$"
+TMP_C_FILE="/tmp/coralw-generated.$$.c"
+TMP_EXECUTABLE="/tmp/coral-generated.$$.exe"
+CORALCCC="./coralccc"
+CC="gcc"
+CFLAGS="-g -O0 -lm"
+
+function usage()
+{
+	echo -e "Coral C Constraint checker wrapper script\n";
+	echo "Usage: $0 <constraints file> [ option ... ]";
+	echo -e "\n";
+	echo "<constraints file> - A text file containing a set of constraints to be solved by CORAL. It should be in CORAL's input language";
+	echo "[ option ] - A command line option supported by CORAL"
+	exit 1;
+}
+
+function cleanup()
+{
+	# Do clean up
+	rm "${TMP_FILE}" "${TMP_EXECUTABLE}" "${TMP_C_FILE}"
+}
+
+
+### START Program
+
+if [ $# -eq 0 ]; then  usage; fi
+
+#Check file constraints exists and is readable
+CONSTRAINTS_FILE="$1"
+
+if [ ! -r "$CONSTRAINTS_FILE" ]; then
+	echo "Cannot read constraints file : $CONSTRAINTS_FILE";
+	exit 1;
+fi
+
+#Now build CORAL_OPTS from other passed arguments
+for (( n=2; n <= $# ; n++)) do
+	CORAL_OPTS="${CORAL_OPTS} ${!i}" #append option
+done
+
+#Write to temp file (explicitly removing old content)
+echo "Coral C Constraint checker input : ${CONSTRAINTS_FILE}" > "${TMP_FILE}"
+
+if [ "$?" -ne 0 ]; then
+	echo "Cannot create temporary file ${TMP_FILE}"; exit 1;
+fi
+
+#Execute CORAL saving output to a temp file
+java -jar "${CORAL_JAR}" --inputCONS="$(cat ${CONSTRAINTS_FILE} )" ${CORAL_OPTS} >> "${TMP_FILE}" 2>&1
+
+#Check coral didn't crash
+if [ "$?" -ne 0 ]; then
+	echo "Coral crashed! Check ${TMP_FILE} to see its output."; exit 1;
+fi
+
+#parse output
+
+#Check if a solution was found
+if [ $( grep -c "SOLVED:" "${TMP_FILE}" ) -eq 1 ]; then
+	#Solution found :)
+
+	#Parse out solutions
+	SOLUTIONS=$(sed -n '/^SOL:/,$p' ${TMP_FILE} )
+
+	#Clean up solutions
+	SOLUTIONS=$( echo "${SOLUTIONS}" | sed 's/SOL:[ ]\+//')
+
+
+	echo "Solution:${SOLUTIONS}";
+
+	#Generate C Code
+	${CORALCCC} ${CONSTRAINTS_FILE} <( echo -n "${SOLUTIONS}" ) > "${TMP_C_FILE}"
+
+	if [ $? -ne 0 ]; then
+		echo "Failed to generate C code!";
+		exit 1;
+	fi
+
+	#Compile C code
+	${CC} ${CFLAGS} "${TMP_C_FILE}" -o "${TMP_EXECUTABLE}"
+
+	if [ $? -ne 0 ]; then
+		echo "Compiling C code failed. Code can be found in ${TMP_C_FILE}"
+		exit 1;
+	fi
+
+	#Run built executable
+	"${TMP_EXECUTABLE}"
+
+	if [ $? -ne 0 ]; then
+		echo "Test failed! Solutions do not work in C on this machine";
+		cleanup;
+		exit 1;
+	else
+		echo "Test succeeded!";
+		cleanup;
+		exit 0;
+	fi
+
+
+
+else
+	echo "Solution not found!"
+	cleanup;
+	exit 1;
+fi
