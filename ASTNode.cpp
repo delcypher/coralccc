@@ -87,7 +87,7 @@ void Variable::setVariableValue(std::string& id, std::string& value)
 	map<string,Variable::Container>::iterator it=collection.find(name);
 
 	//Set the numeric value
-	cerr << "Requesting set ID_" << id << " to value " << value;
+	cerr << "Requesting set ID_" << id << " to value " << value << endl;
 	(it->second).varValue = value;
 }
 
