@@ -94,8 +94,8 @@ LCONST			return TOKEN(TLCONST);
 LVAR			return TOKEN(TLVAR);
 ";"			return TOKEN(TSEMICOL);
 ID_[0-9]+		SAVE_TOKEN; return TID; /* Variable identifier */
-<*>[0-9]+			SAVE_TOKEN; return TINTLIT; /* Integer literal */
-<*>[0-9]+(\.[0-9]+)?	SAVE_TOKEN; return TDECLIT; /* Literal decimal number token */
+<*>[-]?[0-9]+			SAVE_TOKEN; return TINTLIT; /* Integer literal */
+<*>[-]?[0-9]+(\.[0-9]+)?	SAVE_TOKEN; return TDECLIT; /* Literal decimal number token */
 <*>","			return TCOMMA; /* Available for all start conditions */
 "("			return TOKEN(TLBRACKET);
 ")"			return TOKEN(TRBRACKET);
