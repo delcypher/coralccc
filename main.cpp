@@ -17,7 +17,7 @@ void usage();
 
 void generateCCode();
 
-FILE* constraintFile=0;
+FILE* constraintsFile=0;
 FILE* solutionsFile=0;
 
 extern FILE* yyin;
@@ -27,16 +27,20 @@ int main(int argc, char** argv)
 	handleArgs(argc,argv);
 
 	//set the input file for the parser to use
-	yyin=constraintFile;
+	yyin=constraintsFile;
 
 	//Start parsing the constraints
 	yyparse();
+
+	//We're done with constraints file now
+	fclose(constraintsFile);
 
 	//Optionally parse solutions to set variable values
 	if(solutionsFile!=NULL)
 	{
 		yyrestart(solutionsFile);
 		yyparse();
+		fclose(solutionsFile);
 	}
 
 
@@ -51,9 +55,9 @@ void handleArgs(int argc, char** argv)
 		usage();
 
 	//try to open files
-	constraintFile=fopen(argv[1],"r");
+	constraintsFile=fopen(argv[1],"r");
 
-	if(constraintFile==NULL)
+	if(constraintsFile==NULL)
 	{
 		cerr << "Failed to open file " << argv[1] << endl;
 		exit(1);
@@ -68,6 +72,7 @@ void handleArgs(int argc, char** argv)
 		if(solutionsFile==NULL)
 		{
 			cerr << "Failed to open file " << argv[2] << endl;
+			fclose(constraintsFile);
 			exit(1);
 		}
 	}
