@@ -39,6 +39,22 @@ int main(int argc, char** argv)
 	if(solutionsFile!=NULL)
 	{
 		yyrestart(solutionsFile);
+
+		/* Do a basic sanity check to make
+		*  sure we are parsing variable values
+		*/
+		char c = fgetc(solutionsFile);
+		if(c != '{')
+		{
+			//check failed
+			cerr << "<solutions> file invalid" << endl;
+			fclose(solutionsFile);
+			exit(1);
+		}
+		else
+			rewind(solutionsFile);//rewind to the beginning for the parser
+
+
 		yyparse();
 		fclose(solutionsFile);
 	}
