@@ -53,12 +53,8 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			//rewind to the beginning for the parser
-			if(fseek(solutionsFile,0L, SEEK_SET)!=0)
-			{
-				cerr << "Failed to rewind!" << endl;
-				exit(1);
-			}
+			//Virtually put the character back.
+			ungetc(c,solutionsFile);
 		}
 
 		yyparse();
