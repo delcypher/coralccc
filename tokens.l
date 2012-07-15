@@ -105,5 +105,5 @@ ID_[0-9]+		SAVE_TOKEN; return TID; /* Variable identifier */
 <solution>\$V			return TOKEN(TSOLVAR);
 <solution>"="			return TOKEN(TSOLEQ);
 
-.			fprintf(stderr,"Unknown token:%s\n",yytext);yyterminate();
+<*>.			fprintf(stderr,"Unknown token:%s\n",yytext);yyterminate();
 %%
