@@ -23,7 +23,7 @@ function usage()
 function cleanup()
 {
 	# Do clean up
-	rm "${TMP_FILE}" "${TMP_EXECUTABLE}" "${TMP_C_FILE}"
+	rm "${TMP_FILE}" "${TMP_EXECUTABLE}" "${TMP_C_FILE}" 2> /dev/null
 }
 
 
@@ -62,7 +62,7 @@ fi
 #parse output
 
 #Check if a solution was found
-if [ $( grep -c "SOLVED:" "${TMP_FILE}" ) -eq 1 ]; then
+if [ $( grep -c "^SOLVED:" "${TMP_FILE}" ) -eq 1 ]; then
 	#Solution found :)
 
 	#Parse out solutions
