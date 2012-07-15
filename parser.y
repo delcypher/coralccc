@@ -47,11 +47,11 @@
 %type <node>  path_condition syntax 
 %type <node> bool_expression bool_expressions bool_const bool_operation
 %type <node> castable_to_double castable_to_int
-%type <node> double_relational double_expression doublearithmetic double_const double_variable double_binary_function double_unary_function double_cast
+%type <node> double_relational double_expression double_arithmetic double_const double_variable double_binary_function double_unary_function double_cast
 %type <node> float_relational float_expression float_arithmetic float_const float_variable
 %type <node> integer_relational integer_expression integer_arithmetic integer_const integer_variable integer_cast
 %type <node> long_relational long_expression long_arithmetic long_const long_variable
-%type <token> double_comparison arithmetic_operator doublebinaryoperator doubleunaryoperator
+%type <token> double_comparison arithmetic_operator double_binary_operator double_unary_operator
 %type <token> float_comparison
 %type <token> integer_comparison 
 %type <token> long_comparison
@@ -67,18 +67,16 @@
 
 %%
 
+/* Our parser supports parsing path conditions (input constraints to CORAL) or
+CORAL's output (listing the value of variables) */
 syntax : path_condition | solution_group ;
+
+/* Path condition grammar */
 
 path_condition : bool_expressions { root = $1; }
 		;
 
-solution_group : TLBRACE solutions TRBRACE { $$ = $2;}
-
-solutions : solutions TCOMMA | solution ;
-
-solution : TSOLVAR TINTLIT TSOLEQ solution_value { Variable::setVariableValue(*$2,*$4); }
-
-solution_value : TDECLIT | TINTLIT ;
+/* Bool constraints grammar */
 
 bool_expression : bool_const 
 	 | bool_operation 
@@ -103,12 +101,14 @@ bool_operation : bool_binary_operator TLBRACKET bool_expression TCOMMA bool_expr
 
 bool_binary_operator : TAND | TOR | TXOR ;
 
+/* Double constraints grammar */
+
 double_relational : double_comparison TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);}
 ;
 
 double_comparison : TDGT | TDLT | TDLE | TDGE | TDEQ | TDNE ; 
 
-double_expression : doublearithmetic | 
+double_expression : double_arithmetic | 
 		   double_const | 
 		   double_variable | 
 		   double_binary_function | 
@@ -116,7 +116,7 @@ double_expression : doublearithmetic |
 		   double_cast { $$ = $1;}
 		   ;
 
-doublearithmetic : arithmetic_operator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);};
+double_arithmetic : arithmetic_operator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5);};
 
 arithmetic_operator : TADD | TSUB | TMUL | TDIV | TMOD ;
 
@@ -124,18 +124,19 @@ double_const : TDCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantDouble(*$3
 
 double_variable : TDVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3;}  ;
 
-double_binary_function : doublebinaryoperator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
+double_binary_function : double_binary_operator TLBRACKET double_expression TCOMMA double_expression TRBRACKET { $$ = new BinaryPrefixOperator($3,$1,$5);} ;
 
-doublebinaryoperator : TATAN2 | TPOW ;
+double_binary_operator : TATAN2 | TPOW ;
 
-double_unary_function : doubleunaryoperator TLBRACKET double_expression TRBRACKET { $$ = new UnaryOperator($3,$1);} ;
+double_unary_function : double_unary_operator TLBRACKET double_expression TRBRACKET { $$ = new UnaryOperator($3,$1);} ;
 
-doubleunaryoperator : TSIN | TCOS | TTAN | TASIN | TACOS | TATAN | TEXP | TLOG | TLOG10 | TROUND | TSQRT ;
+double_unary_operator : TSIN | TCOS | TTAN | TASIN | TACOS | TATAN | TEXP | TLOG | TLOG10 | TROUND | TSQRT ;
 
 double_cast : TASDOUBLE TLBRACKET castable_to_double TRBRACKET { $$ = new CastOperator($3,$1);}
 
 castable_to_double : float_expression | integer_expression | long_expression ;
 
+/* Float constraints grammar */
 
 float_relational : float_comparison TLBRACKET float_expression TCOMMA float_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
 
@@ -151,6 +152,8 @@ float_arithmetic : arithmetic_operator TLBRACKET float_expression TCOMMA float_e
 float_const : TFCONST TLBRACKET TDECLIT TRBRACKET { $$ = new ConstantFloat(*$3); delete $3;} ;
 
 float_variable : TFVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3; } ;
+
+/* Integer constraints grammar */
 
 integer_relational : integer_comparison TLBRACKET integer_expression TCOMMA integer_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); } ;
 
@@ -172,6 +175,8 @@ integer_cast :  TASINT TLBRACKET castable_to_int TRBRACKET  { $$ = new CastOpera
 
 castable_to_int : double_expression | float_expression | long_expression ; 
 
+/* Long constraints grammar */
+
 long_relational : long_comparison TLBRACKET long_expression TCOMMA long_expression TRBRACKET { $$ = new BinaryInfixOperator($3,$1,$5); };
 
 long_comparison : TLGT | TLLT | TLLE | TLGE | TLEQ | TLNE ;
@@ -186,6 +191,16 @@ long_const : TLCONST TLBRACKET TINTLIT TRBRACKET { $$ = new ConstantLong(*$3); d
 
 long_variable : TLVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delete $3; };
 
+/* Solutions grammar */
+
+solution_group : TLBRACE solutions TRBRACE { $$ = $2;}
+
+solutions : solutions TCOMMA | solution ;
+
+solution : TSOLVAR TINTLIT TSOLEQ solution_value { Variable::setVariableValue(*$2,*$4); }
+
+solution_value : TDECLIT | TINTLIT ;
 %%
 
+/* This definition of yyerror should indicate where syntax problems are */
 void yyerror(const char *s) { std::printf("Error: %s. Between l:%d,c:%d and l:%d,c:%d\n", s,yylloc.first_line, yylloc.first_column, yylloc.last_line, yylloc.last_column);  std::exit(1); }
