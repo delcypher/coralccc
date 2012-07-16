@@ -26,6 +26,11 @@ function cleanup()
 	rm "${TMP_FILE}" "${TMP_EXECUTABLE}" "${TMP_C_FILE}" 2> /dev/null
 }
 
+function error-msg()
+{
+	echo -e "Error: $1" 2>&1;
+}
+
 
 ### START Program
 
@@ -35,7 +40,7 @@ if [ $# -eq 0 ]; then  usage; fi
 CONSTRAINTS_FILE="$1"
 
 if [ ! -r "$CONSTRAINTS_FILE" ]; then
-	echo "Cannot read constraints file : $CONSTRAINTS_FILE";
+	error-msg "Cannot read constraints file : $CONSTRAINTS_FILE"
 	exit 1;
 fi
 
@@ -48,7 +53,8 @@ done
 echo "Coral C Constraint checker input : ${CONSTRAINTS_FILE}" > "${TMP_FILE}"
 
 if [ "$?" -ne 0 ]; then
-	echo "Cannot create temporary file ${TMP_FILE}"; exit 1;
+	error-msg "Cannot create temporary file ${TMP_FILE}"
+	exit 1;
 fi
 
 #Execute CORAL saving output to a temp file
@@ -56,7 +62,8 @@ java -jar "${CORAL_JAR}" --inputCONS="$(cat ${CONSTRAINTS_FILE} )" ${CORAL_OPTS}
 
 #Check coral didn't crash
 if [ "$?" -ne 0 ]; then
-	echo "Coral crashed! Check ${TMP_FILE} to see its output."; exit 1;
+	error-msg "Coral crashed! Check ${TMP_FILE} to see its output.";
+	exit 1;
 fi
 
 #parse output
@@ -78,7 +85,7 @@ if [ $( grep -c "^SOLVED:" "${TMP_FILE}" ) -eq 1 ]; then
 	${CORALCCC} ${CONSTRAINTS_FILE} <( echo -n "${SOLUTIONS}" ) > "${TMP_C_FILE}"
 
 	if [ $? -ne 0 ]; then
-		echo "Failed to generate C code!";
+		error-msg "Failed to generate C code: Check ${TMP_C_FILE} for errors.";
 		exit 1;
 	fi
 
@@ -86,7 +93,7 @@ if [ $( grep -c "^SOLVED:" "${TMP_FILE}" ) -eq 1 ]; then
 	${CC} ${CFLAGS} "${TMP_C_FILE}" -o "${TMP_EXECUTABLE}"
 
 	if [ $? -ne 0 ]; then
-		echo "Compiling C code failed. Code can be found in ${TMP_C_FILE}"
+		error-msg "Compiling C code failed. Code can be found in ${TMP_C_FILE}";
 		exit 1;
 	fi
 
@@ -94,11 +101,11 @@ if [ $( grep -c "^SOLVED:" "${TMP_FILE}" ) -eq 1 ]; then
 	"${TMP_EXECUTABLE}"
 
 	if [ $? -ne 0 ]; then
-		echo "Test failed! Solutions do not work in C on this machine";
+		error-msg "Test failed! Solutions do not work in C on this machine";
 		cleanup;
 		exit 1;
 	else
-		echo "Test succeeded!";
+		echo "Test succeeded!" 2>&1;
 		cleanup;
 		exit 0;
 	fi
