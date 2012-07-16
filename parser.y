@@ -195,7 +195,7 @@ long_variable : TLVAR TLBRACKET TID TRBRACKET { $$ = new Variable(*$3,$1); delet
 
 solution_group : TLBRACE solutions TRBRACE { $$ = $2;}
 
-solutions : solutions TCOMMA | solution ;
+solutions : solutions TCOMMA solution | solution ;
 
 solution : TSOLVAR TINTLIT TSOLEQ solution_value { Variable::setVariableValue(*$2,*$4); }
 
