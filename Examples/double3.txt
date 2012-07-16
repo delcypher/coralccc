@@ -1,0 +1,1 @@
+DLT( SIN_(MUL(DVAR(ID_1),DVAR(ID_2)) ), DCONST(0.0))
