@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include "ASTNode.h"
 
@@ -21,6 +22,8 @@ FILE* constraintsFile=0;
 FILE* solutionsFile=0;
 
 extern FILE* yyin;
+
+extern int yydebug;
 
 int main(int argc, char** argv)
 {
@@ -69,27 +72,39 @@ int main(int argc, char** argv)
 
 void handleArgs(int argc, char** argv)
 {
-	if(argc != 2 && argc!=3)
+	if(argc < 2 || argc > 4)
 		usage();
 
+	int argNum=1;
+
+	//check for debug arg
+	if(strcmp(argv[argNum],"--debug")==0)
+	{
+		yydebug=1;//Enable Bison's debuggin output
+		argNum++;
+	}
+
+
 	//try to open files
-	constraintsFile=fopen(argv[1],"r");
+	constraintsFile=fopen(argv[argNum],"r");
 
 	if(constraintsFile==NULL)
 	{
-		cerr << "Failed to open file " << argv[1] << endl;
+		cerr << "Failed to open file " << argv[argNum] << endl;
 		exit(1);
 	}
 
-	if(argc==3)
+	argNum++;
+	// Check if there is the additional argument
+	if( argNum == (argc -1) )
 	{
 		//the path to a solution file is present so let's try to open the file
 
-		solutionsFile=fopen(argv[2],"r");
+		solutionsFile=fopen(argv[argNum],"r");
 
 		if(solutionsFile==NULL)
 		{
-			cerr << "Failed to open file " << argv[2] << endl;
+			cerr << "Failed to open file " << argv[argNum] << endl;
 			fclose(constraintsFile);
 			exit(1);
 		}
@@ -99,15 +114,15 @@ void handleArgs(int argc, char** argv)
 
 void usage()
 {
-	cerr << "Usage: coralccc <contraint file> <solutions file>" << endl <<
-		" <constraints file> - A file containing a set of constraints in CORAL's constraint input language" << endl <<
-		" <solutions file> - A file containing a set of solutions (variable values for the corresponding constraints)." << 
+	cerr << "Usage: coralccc [ --debug ] <contraint file> <solutions file>" << endl <<
+		"       coralccc [ --debug ] <constraints file>" << endl << endl << 
+		"--debug            : Show Bison's debug output for parsing" << endl <<
+		"<constraints file> : A file containing a set of constraints in CORAL's constraint input language" << endl <<
+		"<solutions file>   : A file containing a set of solutions (variable values for the corresponding constraints)." << 
 		endl << endl <<
 		"This will generate on stdout C Source code that will test the provided constraints." <<
-		endl << endl <<
-		"coralccc  <constraints file>" <<
-		endl <<
-		"Behaviour is the same as above except that the generated C code will not have values set for the variables" << endl;
+		endl << 
+		"The behaviour of the command without a <solutions file> will not have values set for the variables, however the rest of the C code is generated." << endl;
 
 	exit(1);
 }

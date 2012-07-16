@@ -13,7 +13,7 @@ clean:
 	$(RM) -rf parser.cpp parser.hpp coralccc tokens.cpp *.o $(OBJS)
 
 parser.cpp: parser.y
-	bison -d -o $@ $^
+	bison -d --debug -o $@ $^
 	
 parser.hpp: parser.cpp
 
