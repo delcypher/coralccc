@@ -131,21 +131,24 @@ void generateCCode()
 {
 
 	/* Now we will start to print out the C code */
-	cout << "#include <math.h>" << endl;
+	cout << "#include <math.h>" << endl << endl <<
+	"// Solutions to variable values" << endl;
+
+	/* print out double declarations and definitions */
+	Variable::dumpDeclarations(std::cout);
+	cout << endl;
 
 	/* We insert an implementation of a round function */
 	cout << "double round(double v)" << endl <<
 	"{" << endl <<
 	"    double intpart=0;" << endl <<
-	"    double fractional = modf(v,&intpart);" <<
+	"    double fractional = modf(v,&intpart);" << endl <<
 	"    return (fabs(fractional) >= 0.5)?(intpart + (double) 1):(intpart);" << endl <<
 	"}" << endl << endl;
 
 
-	cout << "main()" << "{" << endl;
+	cout << "main()" << endl << "{" << endl;
 
-	/* print out double declarations and definitions */
-	Variable::dumpDeclarations(std::cout);
 
 	cout << indent << "if(";
 
