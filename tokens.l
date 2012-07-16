@@ -31,7 +31,7 @@ http://oreilly.com/linux/excerpts/9780596155971/error-reporting-recovery.html
 %x solution
 %%
 
-[ \t] ; /* Ignore whitespace */
+<*>[ \t] ; /* Ignore whitespace */
 [\n]			{ yycolumn=1; /* Reset the column counter */ }
 BCONST			return TOKEN(TBCONST); /* Binary constant operator */
 TRUE			return TOKEN(TTRUE); /* Truth literal token */
