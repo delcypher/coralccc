@@ -5,7 +5,7 @@ PC  := BE | BE ';' PC
 BE  := BC | BOP | DR | FR | IR | LR
 
 /* boolean constants */
-BC  := 'BCONST(true)' | 'BCONST(false)'
+BC  := 'BCONST(TRUE)' | 'BCONST(FALSE)'
 
 /* boolean operations */
 BOP := op '(' BE ',' BE ')' where op = {BAND,BOR,BXOR}

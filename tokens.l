@@ -34,8 +34,8 @@ http://oreilly.com/linux/excerpts/9780596155971/error-reporting-recovery.html
 [ \t] ; /* Ignore whitespace */
 [\n]			{ yycolumn=1; /* Reset the column counter */ }
 BCONST			return TOKEN(TBCONST); /* Binary constant operator */
-true			return TOKEN(TTRUE); /* Truth literal token */
-false			return TOKEN(TFALSE); /* Truth literal token */
+TRUE			return TOKEN(TTRUE); /* Truth literal token */
+FALSE			return TOKEN(TFALSE); /* Truth literal token */
 BAND			return TOKEN(TAND);
 BOR			return TOKEN(TOR);
 BXOR			return TOKEN(TXOR);
